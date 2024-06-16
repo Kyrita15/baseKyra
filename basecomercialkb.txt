@@ -78,6 +78,8 @@ CREATE TABLE FACTURAS (
     CONSTRAINT FK_FACTURAS_CLIENTES_CODIGO FOREIGN KEY (CLICODIGO) REFERENCES CLIENTES (CLICODIGO),
     CONSTRAINT FK_FACTURAS_CLIENTES_NOMBRE FOREIGN KEY (CLINOMBRE) REFERENCES CLIENTES (CLINOMBRE)
 );
+ALTER TABLE STODETALLE ADD CONSTRAINT FK_STODETALLE_FACTURAS FOREIGN KEY (STONUMFACTURA, STOSERIE1, STOSERIE2) REFERENCES FACTURAS (FCTNUMFACTURA, FCTSERIE1, FCTSERIE2);
+
 
 CREATE TABLE STODETALLE (
     ID SERIAL PRIMARY KEY,
@@ -275,3 +277,24 @@ CREATE TRIGGER trigger_actualizar_saldo_stodetalle
 AFTER INSERT ON STODETALLE
 FOR EACH ROW
 EXECUTE FUNCTION actualizar_saldo_productos_stodetalle();
+/*CREATE OR REPLACE FUNCTION generar_numero_factura()
+RETURNS CHAR(16) AS $$
+DECLARE
+    max_serie1 CHAR(3);
+    max_serie2 CHAR(3);
+    max_numfactura CHAR(10);
+    new_numfactura CHAR(10);
+BEGIN
+    -- Obtener el número máximo de factura actual
+    SELECT COALESCE(MAX(FCTSERIE1), '001') INTO max_serie1 FROM FACTURAS;
+    SELECT COALESCE(MAX(FCTSERIE2), '001') INTO max_serie2 FROM FACTURAS;
+    SELECT COALESCE(MAX(FCTNUMFACTURA), '0000000000') INTO max_numfactura FROM FACTURAS;
+
+    -- Incrementar el número de factura
+    new_numfactura := LPAD((CAST(max_numfactura AS INTEGER) + 1)::TEXT, 10, '0');
+
+    -- Devolver el nuevo número de factura completo
+    RETURN max_serie1 || max_serie2 || new_numfactura;
+END;
+$$ LANGUAGE plpgsql;
+*/
